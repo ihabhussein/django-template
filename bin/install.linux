@@ -1,0 +1,101 @@
+#!/bin/sh
+
+command -v apt-get >/dev/null
+if [ $? -gt 0 ]; then
+    echo "This script only support Debian-based Linux"
+    exit 1
+fi
+
+################################################################################
+#
+# Server name
+#
+
+echo "${server_name}" | grep -E '^[a-z0-9.-]+$' >/dev/null
+if [ $? -gt 0 ]; then
+    echo "Invalid \$server_name: ${server_name:-(empty)}"
+    exit 2
+fi
+
+#
+# Installation defaults
+#
+
+: ${port:=8000}
+: ${project_dir:=$(cd "$(dirname "$0")/.."; pwd)}
+: ${user:=www-data}
+: ${ssl}
+
+
+################################################################################
+
+render() {
+    sed \
+        -e "s|__NAME__|${server_name}|" \
+        -e "s|__NAMES__|${other_names}|" \
+        -e "s|__PDIR__|${project_dir}|" \
+        -e "s|__PORT__|${port}|" \
+        -e "s|__USER__|${user}|" \
+        < $1 > $2
+}
+
+
+#
+# Prepare the system
+#
+
+distro=$(lsb_release -cs)
+curl -sLf https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
+cat > /etc/apt/sources.list.d/pgdg.list <<EOT
+deb     http://apt.postgresql.org/pub/repos/apt/ ${distro}-pgdg main
+deb-src http://apt.postgresql.org/pub/repos/apt/ ${distro}-pgdg main
+EOT
+
+apt-get -y install software-properties-common
+add-apt-repository -y ppa:certbot/certbot
+
+apt-get -y update
+apt-get -y upgrade
+apt-get -y dist-upgrade
+apt-get -y install python python-psycopg2 nginx certbot postgresql-10
+apt autoremove
+
+
+#
+# Generating Certificates:
+#
+if [ -n "${ssl}" ]; then
+    service nginx stop
+    certbot certonly --standalone -d "${server_name}" "${other_names}"
+    service nginx start
+fi
+
+
+#
+# Nginx config
+#
+
+file_name="/etc/nginx/sites-enabled/${server_name}"
+render "${project_dir}/etc/nginx${ssl:-_no}_ssl.conf" "${file_name}"
+service nginx restart
+
+
+#
+# SystemV init script
+#
+
+file_name="/etc/init.d/${server_name}"
+render "${project_dir}/etc/sysv-init" "${file_name}"
+chmod +x "${file_name}"
+update-rc.d ${server_name} defaults
+service ${server_name} start
+
+
+#
+# Systemd service file
+#
+
+file_name="/etc/systemd/system/${server_name}.service"
+render "${project_dir}/etc/etc/systemd.service" "${file_name}"
+systemctl daemon-reload
+systemctl start "${server_name}"

@@ -1,0 +1,23 @@
+#!/bin/sh
+
+: ${project_dir=$(cd "$(dirname "$0")/.."; pwd)}
+: ${envpath=$project_dir/.env}
+[ -f "$envpath" ] && . "$envpath"
+
+export PYTHONPATH="$project_dir/src"
+export PYTHONUSERBASE="$project_dir/.local"
+export PATH="$project_dir/bin:$PYTHONUSERBASE/bin:$PATH"
+export DJANGO_LOG_DIR="${DJANGO_LOG_DIR=$project_dir/.local}"
+
+pip3 install --user --quiet -r "$project_dir/requirements.txt"
+if [ -z "$DJANGO_DEBUG$*" ]; then
+    export DJANGO_STATIC_ROOT="${DJANGO_STATIC_ROOT=$project_dir/static}"
+    export DJANGO_MEDIA_ROOT="${DJANGO_MEDIA_ROOT=$project_dir/media}"
+    manage.py collectstatic --no-input --verbosity 0                   || exit 2
+
+    pip install --user --quiet gunicorn
+    gunicorn -b :${port=8000} ${user+−u $user} ${group+−g $group} \
+         -w ${WEB_CONCURRENCY-4} project.wsgi:application              || exit 3
+else
+    manage.py "${@:-runserver}"                                        || exit 3
+fi

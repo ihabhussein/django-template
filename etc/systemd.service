@@ -1,0 +1,10 @@
+[Unit]
+Description=__NAME__ Server
+DefaultDependencies=true
+
+[Service]
+ExecStart=__PDIR__/bin/rundjango
+Restart=on−failure
+
+[Install]
+WantedBy=multi-user.target

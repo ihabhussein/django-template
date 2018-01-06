@@ -1,0 +1,76 @@
+#!/bin/sh
+
+command -v freebsd-version >/dev/null
+if [ $? -gt 0 ]; then
+    echo "This script only support FreeBSD"
+    exit 1
+fi
+
+################################################################################
+#
+# Server name
+#
+
+echo "${server_name}" | grep -E '^[a-z0-9.-]+$' >/dev/null
+if [ $? -gt 0 ]; then
+    echo "Invalid \$server_name: ${server_name:-(empty)}"
+    exit 2
+fi
+
+#
+# Installation defaults
+#
+
+: ${port:=8000}
+: ${project_dir:=$(cd "$(dirname "$0")/.."; pwd)}
+: ${user:=www-data}
+: ${ssl}
+
+
+################################################################################
+
+render() {
+    sed \
+        -e "s|__NAME__|${server_name}|" \
+        -e "s|__NAMES__|${other_names}|" \
+        -e "s|__PDIR__|${project_dir}|" \
+        -e "s|__PORT__|${port}|" \
+        -e "s|__USER__|${user}|" \
+        < $1 > $2
+}
+
+
+#
+# Prepare the system
+#
+freebsd-update fetch install
+pkg install nginx postgresql10-server py36-pip py36-psycopg2 py27-certbot
+rehash
+
+
+#
+# Generating Certificates:
+#
+if [ -n "${ssl}" ]; then
+    service nginx stop
+    certbot certonly --standalone -d "${server_name}" "${other_names}"
+    service nginx start
+fi
+
+
+#
+# Nginx config
+#
+file_name="/usr/local/etc/nginx/vhosts/${server_name}"
+render "${project_dir}/etc/nginx/nginx${ssl:-_no}_ssl.conf" "${file_name}"
+
+
+#
+# BSD rc.d script
+#
+file_name="/usr/local/etc/rc.d/${server_name}"
+render "${project_dir}/etc/rc.d/bsd-rc.d" "${file_name}"
+for service in postgresql ${server_name} nginx; do
+	sysrc ${service}_enable=yes
+	service ${service} restart
+done
