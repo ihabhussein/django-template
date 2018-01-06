@@ -15,7 +15,7 @@ if [ -z "$DJANGO_DEBUG$*" ]; then
     export DJANGO_MEDIA_ROOT="${DJANGO_MEDIA_ROOT=$project_dir/media}"
     manage.py collectstatic --no-input --verbosity 0                   || exit 2
 
-    pip install --user --quiet gunicorn
+    pip3 install --user --quiet gunicorn
     gunicorn -b :${port=8000} ${user+−u $user} ${group+−g $group} \
          -w ${WEB_CONCURRENCY-4} project.wsgi:application              || exit 3
 else
