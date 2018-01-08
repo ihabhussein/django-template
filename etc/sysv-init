@@ -36,13 +36,11 @@ case "$1" in
         echo "Starting $name"
         cd "$dir"
         if [ -z "$user" ]; then
-            sudo $cmd >> "$stdout_log" 2>> "$stderr_log" &
+            $cmd >> "$stdout_log" 2>> "$stderr_log" &
         else
-            touch "$stdout_log" "$stderr_log"
-            chown $user "$stdout_log" "$stderr_log"
             sudo -u "$user" $cmd >> "$stdout_log" 2>> "$stderr_log" &
         fi
-        echo $! > "$pid_file"
+        ps -aux | awk "/^${user}.*${cmd//\//\\/}/ {print \$2}" > "$pid_file"
         if ! is_running; then
             echo "Unable to start, see $stdout_log and $stderr_log"
             exit 1

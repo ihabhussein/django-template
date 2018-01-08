@@ -16,8 +16,8 @@ if [ -z "$DJANGO_DEBUG$*" ]; then
     manage.py collectstatic --no-input --verbosity 0                   || exit 2
 
     pip3 install --user --quiet gunicorn
-    gunicorn -b :${port=8000} ${user+−u $user} ${group+−g $group} \
-         -w ${WEB_CONCURRENCY-4} project.wsgi:application              || exit 3
+    gunicorn --bind=:${port=8000} --workers=${WEB_CONCURRENCY-4} \
+         project.wsgi:application                                      || exit 3
 else
     manage.py "${@:-runserver}"                                        || exit 3
 fi
