@@ -70,6 +70,8 @@ render "${project_dir}/etc/nginx/nginx${ssl:-_no}_ssl.conf" "${file_name}"
 #
 file_name="/usr/local/etc/rc.d/${server_name}"
 render "${project_dir}/etc/rc.d/bsd-rc.d" "${file_name}"
+chmod +x "${file_name}"
+
 for service in postgresql ${server_name} nginx; do
 	sysrc ${service}_enable=yes
 	service ${service} restart
