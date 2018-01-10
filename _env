@@ -1,26 +1,23 @@
-export DJANGO_DEBUG=1
-export DJANGO_SECRET_KEY='uxM7z/bzeFWp9cqRb8MS8Znkg97PbcJLvXSJ535bFB4uR1sb+OWSX'
-# export DJANGO_ALLOWED_HOSTS=
+export DEBUG=1
+export SECRET_KEY='uxM7z/bzeFWp9cqRb8MS8Znkg97PbcJLvXSJ535bFB4uR1sb+OWSX'
+export ALLOWED_HOSTS=
 
-# export DJANGO_LANGUAGES=
+export LANGUAGES=
 
-# export DATABASE_URL="sqlite:///$project_dir/.local/db.sqlite3"
-# export DATABASE_URL="postgresql:///"
+export DATABASE_URL="sqlite:///$project_dir/.local/db.sqlite3"
+export DATABASE_URL="postgresql:///"
 
-# export DJANGO_MEDIA_ROOT=
-# export DJANGO_STATIC_ROOT=
+export MEDIA_ROOT=
+export STATIC_ROOT=
 
-# export DJANGO_EMAIL_HOST=
-# export DJANGO_EMAIL_PORT=
-# export DJANGO_EMAIL_HOST_USER=
-# export DJANGO_EMAIL_HOST_PASSWORD=
-# export DJANGO_EMAIL_USE_TLS=
-# export DJANGO_EMAIL_USE_SSL=
+export EMAIL_HOST=
+export EMAIL_PORT=
+export EMAIL_HOST_USER=
+export EMAIL_HOST_PASSWORD=
+export EMAIL_USE_TLS=
+export EMAIL_USE_SSL=
 
-# export DJANGO_MAX_ITEM_IMAGES=
-# export DJANGO_FILE_UPLOAD_MAX_SIZE=
+export LOG_LEVEL=
+export LOG_FACILITY=
 
-# export DJANGO_LOG_LEVEL=
-# export DJANGO_LOGGING_FACILITY=
-
-# export port=
+export port=

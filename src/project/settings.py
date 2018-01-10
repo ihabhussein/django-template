@@ -11,9 +11,9 @@ BASE_DIR = path.dirname(path.dirname(path.abspath(__file__)))
 
 # Security
 
-SECRET_KEY = environ.get('DJANGO_SECRET_KEY')
-DEBUG = len(environ.get('DJANGO_DEBUG', '')) > 0
-ALLOWED_HOSTS = environ.get('DJANGO_ALLOWED_HOSTS', '*').split(',')
+SECRET_KEY = environ.get('SECRET_KEY')
+DEBUG = len(environ.get('DEBUG', '')) > 0
+ALLOWED_HOSTS = environ.get('ALLOWED_HOSTS', '*').split(',')
 
 # CSRF_COOKIE_HTTPONLY = True
 # CSRF_COOKIE_SECURE = True
@@ -108,7 +108,7 @@ LANGUAGES_AVAILABLE = {
 }
 LANGUAGES = [
     (x, LANGUAGES_AVAILABLE[x]) \
-    for x in os.environ.get('DJANGO_LANGUAGES', '').split(',') \
+    for x in os.environ.get('LANGUAGES', '').split(',') \
     if x in LANGUAGES_AVAILABLE
 ]
 LANGUAGES = [
@@ -125,10 +125,10 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = environ.get('DJANGO_MEDIA_ROOT', path.join(BASE_DIR, 'media'))
+MEDIA_ROOT = environ.get('MEDIA_ROOT', path.join(BASE_DIR, 'media'))
 
 STATIC_URL = '/static/'
-STATIC_ROOT = environ.get('DJANGO_STATIC_ROOT', None)
+STATIC_ROOT = environ.get('STATIC_ROOT', None)
 STATICFILES_DIRS = [path.join(BASE_DIR, 'static'),]
 
 STATICFILES_FINDERS = (
@@ -136,18 +136,12 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 )
 
-EMAIL_HOST = environ.get('DJANGO_EMAIL_HOST')
-EMAIL_PORT = environ.get('DJANGO_EMAIL_PORT')
-EMAIL_HOST_USER = environ.get('DJANGO_EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = environ.get('DJANGO_EMAIL_HOST_PASSWORD')
-EMAIL_USE_TLS = environ.get('DJANGO_EMAIL_USE_TLS')
-EMAIL_USE_SSL = environ.get('DJANGO_EMAIL_USE_SSL')
-
-# Uploads
-
-MAX_ITEM_IMAGES = environ.get('DJANGO_MAX_ITEM_IMAGES', 5)
-FILE_UPLOAD_MAX_SIZE = environ.get('DJANGO_FILE_UPLOAD_MAX_SIZE', 10)  # MB
-DATA_UPLOAD_MAX_MEMORY_SIZE = None
+EMAIL_HOST = environ.get('EMAIL_HOST')
+EMAIL_PORT = environ.get('EMAIL_PORT')
+EMAIL_HOST_USER = environ.get('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = environ.get('EMAIL_HOST_PASSWORD')
+EMAIL_USE_TLS = environ.get('EMAIL_USE_TLS')
+EMAIL_USE_SSL = environ.get('EMAIL_USE_SSL')
 
 # Logging
 
@@ -162,14 +156,17 @@ LOGGING = {
     'handlers': {
         'syslog': {
             'class': 'logging.handlers.SysLogHandler',
-            'facility': environ.get('DJANGO_LOG_FACILITY', 'local7'),
+            'facility': environ.get('LOG_FACILITY', 'local7'),
             'formatter': 'syslog',
+        },
+        'console': {
+            'class': 'logging.StreamHandler',
         },
     },
     'loggers': {
         '': {
-            'level': environ.get('DJANGO_LOG_LEVEL', 'DEBUG' if DEBUG else 'INFO'),
-            'handlers': ['syslog'],
+            'level': environ.get('LOG_LEVEL', 'DEBUG' if DEBUG else 'INFO'),
+            'handlers': ['console'],
             'propagate': True,
         },
     },

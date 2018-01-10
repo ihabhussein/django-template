@@ -1,8 +1,8 @@
 #!/bin/sh
 ### BEGIN INIT INFO
 # Provides:          __NAME__
-# Required-Start:    $network $syslog
-# Required-Stop:     $network $syslog
+# Required-Start:    $network $syslog postgresql nginx
+# Required-Stop:     $network $syslog postgresql nginx
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
 # Short-Description: Start __NAME__ at boot time
@@ -35,12 +35,15 @@ case "$1" in
     else
         echo "Starting $name"
         cd "$dir"
+
+        export pid_file stdout_log stderr_log
         if [ -z "$user" ]; then
-            $cmd >> "$stdout_log" 2>> "$stderr_log" &
+            $cmd &
         else
-            sudo -u "$user" $cmd >> "$stdout_log" 2>> "$stderr_log" &
+            touch "$pid_file" "$stdout_log" "$stderr_log"
+            chown "$user" "$pid_file" "$stdout_log" "$stderr_log"
+            su -m "$user" -c "$cmd" &
         fi
-        ps -aux | awk "/^${user}.*${cmd//\//\\/}/ {print \$2}" > "$pid_file"
         if ! is_running; then
             echo "Unable to start, see $stdout_log and $stderr_log"
             exit 1
