@@ -14,7 +14,7 @@ export PYTHONUSERBASE="$project_dir/.local"
 export PATH="$project_dir/bin:$PYTHONUSERBASE/bin:$PATH"
 
 pip3 install --user --quiet -r "$project_dir/requirements.txt"
-manage.py migrate                                                      || exit 1
+manage.py migrate || exit 1
 
 trap 'for j in $(jobs -p); do kill $j; done; exit' 2 9 15
 
@@ -23,7 +23,7 @@ if [ -z "$DEBUG$*" ]; then
 
     export STATIC_ROOT="${STATIC_ROOT=$project_dir/static}"
     export MEDIA_ROOT="${MEDIA_ROOT=$project_dir/media}"
-    manage.py collectstatic --no-input --verbosity 0                   || exit 2
+    manage.py collectstatic --no-input --verbosity 0 || exit 2
 
     pip3 install --user --quiet gunicorn
     gunicorn \
@@ -35,5 +35,5 @@ if [ -z "$DEBUG$*" ]; then
         config.wsgi:application &
     wait
 else
-    manage.py "${@:-runserver}"
+    manage.py ${@:-runserver ${listen}:${port}}
 fi
