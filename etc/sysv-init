@@ -10,22 +10,17 @@
 ### END INIT INFO
 
 dir="__PDIR__"
-cmd="__PDIR__/bin/rundjango"
+cmd="__PDIR__/.local/bin/gunicorn project.wsgi:application"
 user="__USER__"
+name="__NAME__"
 
 ################################################################################
 
-name="__NAME__"
+export $(grep -v '^#' "__PDIR__/.env" | xargs)
 pid_file="/var/run/$name.pid"
-stdout_log="/var/log/$name.log"
-stderr_log="/var/log/$name.err"
-
-get_pid() {
-    cat "$pid_file"
-}
 
 is_running() {
-    [ -f "$pid_file" ] && ps $(get_pid) > /dev/null 2>&1
+    [ -f "$pid_file" ] && ps $(cat "$pid_file") > /dev/null 2>&1
 }
 
 case "$1" in
@@ -34,19 +29,20 @@ case "$1" in
         echo "Already started"
     else
         echo "Starting $name"
-        cd "$dir"
 
-        export pid_file stdout_log stderr_log
+        touch "$pid_file" "$stdout_log" "$stderr_log"
         if [ -z "$user" ]; then
             $cmd &
         else
-            touch "$pid_file" "$stdout_log" "$stderr_log"
             chown "$user" "$pid_file" "$stdout_log" "$stderr_log"
             su -m "$user" -c "$cmd" &
         fi
-        if ! is_running; then
-            echo "Unable to start, see $stdout_log and $stderr_log"
+        pid="$!"
+        if [ "$pid" = "0" ]; then
+            echo "Unable to start __NAME__"
             exit 1
+        else
+            echo "$pid" > "$pid_file"
         fi
     fi
     ;;
@@ -54,12 +50,9 @@ case "$1" in
     stop)
     if is_running; then
         echo -n "Stopping $name.."
-        kill $(get_pid)
+        kill $(cat "$pid_file")
         for i in {1..10}; do
-            if ! is_running; then
-                break
-            fi
-
+            if ! is_running; then break; fi
             echo -n "."
             sleep 1
         done
@@ -70,9 +63,7 @@ case "$1" in
             exit 1
         else
             echo "Stopped"
-            if [ -f "$pid_file" ]; then
-                rm "$pid_file"
-            fi
+            if [ -f "$pid_file" ]; then rm "$pid_file"; fi
         fi
     else
         echo "Not running"

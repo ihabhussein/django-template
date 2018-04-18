@@ -2,38 +2,13 @@
 
 : ${project_dir=$(cd "$(dirname "$0")/.."; pwd)}
 : ${envpath=$project_dir/.env}
-[ -f "$envpath" ] && . "$envpath"
-: ${LISTEN=127.0.0.1}
-: ${PORT=8000}
-: ${WEB_CONCURRENCY=4}
-: ${STDOUT_LOG=$project_dir/.local/django.log}
-: ${STDERR_LOG=$project_dir/.local/django.err}
+[ -f "$envpath" ] && export $(grep -v '^#' "$envpath" | xargs)
 
-export PYTHONPATH="$project_dir/src"
-export PYTHONUSERBASE="$project_dir/.local"
-export PATH="$project_dir/bin:$PYTHONUSERBASE/bin:$PATH"
 
-pip3 install --user --quiet -r "$project_dir/requirements.txt"
-manage.py migrate || exit 1
-
-trap 'for j in $(jobs -p); do kill $j; done; exit' 2 9 15
-
-if [ -z "$DEBUG$*" ]; then
-    if [ -f "$pid_file" ]; then echo $$ > "$pid_file"; fi
-
-    export STATIC_ROOT="${STATIC_ROOT=$project_dir/static}"
-    export MEDIA_ROOT="${MEDIA_ROOT=$project_dir/media}"
-    manage.py collectstatic --no-input --verbosity 0 || exit 2
-
-    pip3 install --user --quiet gunicorn
-    gunicorn \
-        --bind ${LISTEN}:${PORT} \
-        --workers ${WEB_CONCURRENCY} \
-        --access-logfile "$STDOUT_LOG" \
-        --error-logfile "$STDERR_LOG" \
-        --capture-output \
-        config.wsgi:application &
-    wait
+if [ "$1" = "pip" ]; then
+    pip=$PYTHONUSERBASE/bin/pip3
+    $pip install --user -q -r "$project_dir/requirements.txt"
+    $pip install --user -q gunicorn
 else
-    manage.py ${@:-runserver ${listen}:${port}}
+    $project_dir/bin/manage.py ${@:-runserver ${LISTEN-127.0.0.1}:${PORT-8000}}
 fi

@@ -3,7 +3,8 @@ Description=__NAME__ Server
 DefaultDependencies=true
 
 [Service]
-ExecStart=__PDIR__/bin/rundjango
+EnvironmentFile="__PDIR__/.env"
+ExecStart="__PDIR__/.local/bin/gunicorn project.wsgi:application"
 Restart=on−failure
 
 [Install]
