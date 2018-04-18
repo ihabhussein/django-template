@@ -76,7 +76,7 @@ fi
 #
 
 file_name="/etc/nginx/sites-enabled/${server_name}"
-render "${project_dir}/etc/nginx${ssl:-_no}_ssl.conf" "${file_name}"
+render "${project_dir}/etc/nginx${ssl+_ssl}.conf" "${file_name}"
 service nginx restart
 
 

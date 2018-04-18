@@ -62,7 +62,7 @@ fi
 # Nginx config
 #
 file_name="/usr/local/etc/nginx/vhosts/${server_name}"
-render "${project_dir}/etc/nginx/nginx${ssl:-_no}_ssl.conf" "${file_name}"
+render "${project_dir}/etc/nginx/nginx${ssl+_ssl}.conf" "${file_name}"
 
 
 #
