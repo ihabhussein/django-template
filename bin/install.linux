@@ -16,6 +16,7 @@ if [ $? -gt 0 ]; then
     echo "Invalid \$server_name: ${server_name:-(empty)}"
     exit 2
 fi
+safe_name=${server_name//\./_}
 
 #
 # Installation defaults
@@ -24,15 +25,19 @@ fi
 : ${port:=8000}
 : ${project_dir:=$(cd "$(dirname "$0")/.."; pwd)}
 : ${user:=www-data}
+: ${conf_dir:=/etc/django}
 
+mkdir -p "${conf_dir}"
 
 ################################################################################
 
 render() {
     sed \
         -e "s|__NAME__|${server_name}|" \
+        -e "s|__SAFE__|${safe_name}|" \
         -e "s|__NAMES__|${other_names}|" \
         -e "s|__PDIR__|${project_dir}|" \
+        -e "s|__CONF__|${conf_dir}|" \
         -e "s|__PORT__|${port}|" \
         -e "s|__USER__|${user}|" \
         < $1 > $2
@@ -60,10 +65,10 @@ apt-get -y install python3 python3-psycopg2 nginx certbot postgresql-10
 apt autoremove
 
 
-file_name="${project_dir}/settings_django.py"
-render "${project_dir}/etc/settings_django.py" "${file_name}"
-file_name="${project_dir}/settings_gunicorn.py"
-render "${project_dir}/etc/settings_gunicorn.py" "${file_name}"
+file_name="${conf_dir}/${safe_name}_django.py"
+render "${project_dir}/etc/django.py" "${file_name}"
+file_name="${conf_dir}/${safe_name}_gunicorn.py"
+render "${project_dir}/etc/gunicorn.py" "${file_name}"
 
 
 #
