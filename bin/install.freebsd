@@ -24,7 +24,6 @@ fi
 : ${port:=8000}
 : ${project_dir:=$(cd "$(dirname "$0")/.."; pwd)}
 : ${user:=www-data}
-: ${ssl}
 
 
 ################################################################################
@@ -57,18 +56,16 @@ render "${project_dir}/etc/settings_gunicorn.py" "${file_name}"
 #
 # Generating Certificates:
 #
-if [ -n "${ssl}" ]; then
-    service nginx stop
-    certbot certonly --standalone -d "${server_name}" "${other_names}"
-    service nginx start
-fi
+service nginx stop
+certbot certonly --standalone -d "${server_name}" "${other_names}"
+service nginx start
 
 
 #
 # Nginx config
 #
 file_name="/usr/local/etc/nginx/vhosts/${server_name}"
-render "${project_dir}/etc/nginx/nginx${ssl+_ssl}.conf" "${file_name}"
+render "${project_dir}/etc/nginx/nginx.conf" "${file_name}"
 
 
 #
