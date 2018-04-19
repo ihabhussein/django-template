@@ -1,0 +1,43 @@
+#!/bin/sh
+
+command -v freebsd-version >/dev/null
+if [ $? -gt 0 ]; then
+    echo "This script only support FreeBSD"
+    exit 1
+fi
+
+conf_dir="/usr/local/etc/django"
+nginx_conf="/usr/local/etc/nginx/vhosts/${server_name}"
+startuo_template="${project_dir}/etc/bsd-rc.d"
+startup_file="/usr/local/etc/rc.d/${server_name}"
+
+#
+# Prepare the system
+#
+_prerequisites() {
+    freebsd-update fetch install
+    pkg install nginx postgresql10-server py36-pip py36-psycopg2 py27-certbot
+    rehash
+}
+
+
+#
+# Startup
+#
+_startup() {
+    for service in postgresql ${server_name} nginx; do
+    	sysrc ${service}_enable=yes
+    	service ${service} restart
+    done
+}
+
+_stop_nginx() {
+    service nginx stop
+}
+
+
+#
+# Prepare
+#
+
+if [ -z "$1" ]; then _prerequisites; fi

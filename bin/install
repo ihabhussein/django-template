@@ -1,16 +1,11 @@
 #!/bin/sh
 
-command -v freebsd-version >/dev/null
-if [ $? -gt 0 ]; then
-    echo "This script only support FreeBSD"
-    exit 1
-fi
-
 ################################################################################
 #
 # Server name
 #
 
+: ${server_name:=$1}
 echo "${server_name}" | grep -E '^[a-z0-9.-]+$' >/dev/null
 if [ $? -gt 0 ]; then
     echo "Invalid \$server_name: ${server_name:-(empty)}"
@@ -22,11 +17,20 @@ safe_name=${server_name//\./_}
 # Installation defaults
 #
 
-: ${port:=8000}
 : ${project_dir:=$(cd "$(dirname "$0")/.."; pwd)}
+: ${port:=8000}
 : ${user:=www-data}
-: ${conf_dir:=/usr/local/etc/django}
 
+if command -v brew > /dev/null; then
+    . ${project_dir}/bin/prepare.darwin __define__
+elif [ $(uname) = 'FreeBSD' ]; then
+    . ${project_dir}/bin/prepare.freebsd __define__
+elif command -v apt-get > /dev/null; then
+    . ${project_dir}/bin/prepare.linux __define__
+else
+    echo 'Unable to determine the operating system'
+    exit 1
+fi
 mkdir -p "${conf_dir}"
 
 
@@ -45,43 +49,14 @@ render() {
 }
 
 
-#
-# Prepare the system
-#
-freebsd-update fetch install
-pkg install nginx postgresql10-server py36-pip py36-psycopg2 py27-certbot
-rehash
-
-
 file_name="${conf_dir}/${safe_name}_django.py"
 render "${project_dir}/etc/django.py" "${file_name}"
 file_name="${conf_dir}/${safe_name}_gunicorn.py"
 render "${project_dir}/etc/gunicorn.py" "${file_name}"
 
-
-#
-# Generating Certificates:
-#
-service nginx stop
+_stop_nginx
 certbot certonly --standalone -d "${server_name}" "${other_names}"
-service nginx start
-
-
-#
-# Nginx config
-#
-file_name="/usr/local/etc/nginx/vhosts/${server_name}"
-render "${project_dir}/etc/nginx/nginx.conf" "${file_name}"
-
-
-#
-# BSD rc.d script
-#
-file_name="/usr/local/etc/rc.d/${server_name}"
-render "${project_dir}/etc/rc.d/bsd-rc.d" "${file_name}"
-chmod +x "${file_name}"
-
-for service in postgresql ${server_name} nginx; do
-	sysrc ${service}_enable=yes
-	service ${service} restart
-done
+render "${project_dir}/etc/nginx.conf" "${nginx_conf}"
+render "${startuo_template}" "${startup_file}"
+chmod +x "${startup_file}"
+_startup

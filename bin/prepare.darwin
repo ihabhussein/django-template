@@ -1,0 +1,42 @@
+#!/bin/sh
+
+command -v brew >/dev/null
+if [ $? -gt 0 ]; then
+    echo "This script needs homebrew to run"
+    exit 1
+fi
+
+conf_dir="${project_dir}/.local"
+nginx_conf="${project_dir}/.local/nginx.conf"
+startup_template=/dev/null
+startup_file=/dev/null
+
+#
+# Prepare the system
+#
+_prerequisites() {
+    brew update
+    brew upgrade
+    brew cleanup
+
+    brew install nginx postgresql python3
+}
+
+
+#
+# Startup
+#
+_startup() {
+    echo
+}
+
+_stop_nginx() {
+    echo
+}
+
+
+#
+# Prepare
+#
+
+if [ -z "$1" ]; then _prerequisites; fi
