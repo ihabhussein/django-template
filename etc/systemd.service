@@ -4,7 +4,7 @@ DefaultDependencies=true
 
 [Service]
 ExecStart="__PDIR__/.local/bin/gunicorn -c __PDIR__/__SAFE___gunicorn project.wsgi:application"
-Environment="PYTHONPATH=__PDIR__/src:__PDIR__"
+Environment="PYTHONPATH=__PDIR__/src:__CONF__"
 Environment="PYTHONUSERBASE=__PDIR__/.local"
 Environment="DJANGO_SETTINGS_MODULE=__SAFE___django"
 Restart=on−failure
