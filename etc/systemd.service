@@ -3,8 +3,10 @@ Description=__NAME__ Server
 DefaultDependencies=true
 
 [Service]
-EnvironmentFile="__PDIR__/.env"
-ExecStart="__PDIR__/.local/bin/gunicorn project.wsgi:application"
+Environment="PYTHONPATH=__PDIR__/src:__PDIR__"
+Environment="PYTHONUSERBASE=__PDIR__/.local"
+Environment="DJANGO_SETTINGS_MODULE=settings_django"
+ExecStart="__PDIR__/.local/bin/gunicorn -c python:settings_gunicorn project.wsgi:application"
 Restart=on−failure
 
 [Install]

@@ -10,5 +10,5 @@ if [ "$1" = "pip" ]; then
     $pip install --user -q -r "$project_dir/requirements.txt"
     $pip install --user -q gunicorn
 else
-    $project_dir/bin/manage.py ${@:-runserver ${LISTEN-127.0.0.1}:${PORT-8000}}
+    $project_dir/bin/manage.py ${@:-runserver}
 fi

@@ -8,7 +8,10 @@
 . /etc/rc.subr
 
 name=__NAME__
-command="export $(grep -v '^#' "__PDIR__/.env" | xargs) && __PDIR__/.local/bin/gunicorn project.wsgi:application"
+command="__PDIR__/.local/bin/gunicorn -c python:settings_gunicorn project.wsgi:application"
+export PYTHONPATH="__PDIR__/src:__PDIR__"
+export PYTHONUSERBASE="__PDIR__/.local"
+export DJANGO_SETTINGS_MODULE="settings_django"
 
 load_rc_config $name
 : ${__NAME___enable:=no}

@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from os import environ, path
-
-from pgconninfo import pg_conninfo
+from os import path
 
 
 # Build paths inside the project like this: path.join(BASE_DIR, ...)
@@ -11,16 +9,9 @@ BASE_DIR = path.dirname(path.dirname(path.abspath(__file__)))
 
 # Security
 
-SECRET_KEY = environ.get('SECRET_KEY')
-DEBUG = len(environ.get('DEBUG', '')) > 0
-ALLOWED_HOSTS = environ.get('ALLOWED_HOSTS', '*').split(',')
-
-# CSRF_COOKIE_HTTPONLY = True
-# CSRF_COOKIE_SECURE = True
-# SESSION_COOKIE_SECURE = True
-# SECURE_SSL_REDIRECT = True
-# SECURE_BROWSER_XSS_FILTER = True
-# SECURE_CONTENT_TYPE_NOSNIFF = True
+SECRET_KEY = '_random_string_'
+DEBUG = 1
+ALLOWED_HOSTS = []
 
 
 INSTALLED_APPS = [
@@ -69,19 +60,6 @@ TEMPLATES = [
 WSGI_APPLICATION = 'project.wsgi.application'
 
 
-# Database
-
-DATABASES = {
-    'default': pg_conninfo(),
-}
-
-HAYSTACK_CONNECTIONS = {
-    'default': {
-        'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
-    }
-}
-
-
 # Password validation
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -102,19 +80,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Internationalization
 
-LANGUAGES_AVAILABLE = {
-    'en': u'English',
-    'ar': u'العربية',
-}
-LANGUAGES = [
-    (x, LANGUAGES_AVAILABLE[x]) \
-    for x in os.environ.get('LANGUAGES', '').split(',') \
-    if x in LANGUAGES_AVAILABLE
-]
-LANGUAGES = [
-    (x, LANGUAGES_AVAILABLE[x]) for x in LANGUAGES_AVAILABLE
-] if (len(LANGUAGES) == 0)
-LANGUAGE_CODE = LANGUAGES[0][0]
+LANGUAGE_CODE = 'en_US'
 
 TIME_ZONE = 'Africa/Cairo'
 USE_I18N = True
@@ -125,23 +91,16 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = environ.get('MEDIA_ROOT', path.join(BASE_DIR, 'media'))
+MEDIA_ROOT = path.join(BASE_DIR, 'media')
 
 STATIC_URL = '/static/'
-STATIC_ROOT = environ.get('STATIC_ROOT', None)
-STATICFILES_DIRS = [path.join(BASE_DIR, 'static'),]
+STATIC_ROOT = path.join(BASE_DIR, 'static')
 
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 )
 
-EMAIL_HOST = environ.get('EMAIL_HOST')
-EMAIL_PORT = environ.get('EMAIL_PORT')
-EMAIL_HOST_USER = environ.get('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = environ.get('EMAIL_HOST_PASSWORD')
-EMAIL_USE_TLS = environ.get('EMAIL_USE_TLS')
-EMAIL_USE_SSL = environ.get('EMAIL_USE_SSL')
 
 # Logging
 
@@ -156,7 +115,7 @@ LOGGING = {
     'handlers': {
         'syslog': {
             'class': 'logging.handlers.SysLogHandler',
-            'facility': environ.get('LOG_FACILITY', 'local7'),
+            'facility': 'local7',
             'formatter': 'syslog',
         },
         'console': {
@@ -165,7 +124,7 @@ LOGGING = {
     },
     'loggers': {
         '': {
-            'level': environ.get('LOG_LEVEL', 'DEBUG' if DEBUG else 'INFO'),
+            'level': 'DEBUG',
             'handlers': ['console'],
             'propagate': True,
         },

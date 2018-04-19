@@ -48,6 +48,12 @@ pkg install nginx postgresql10-server py36-pip py36-psycopg2 py27-certbot
 rehash
 
 
+file_name="${project_dir}/settings_django.py"
+render "${project_dir}/etc/settings_django.py" "${file_name}"
+file_name="${project_dir}/settings_gunicorn.py"
+render "${project_dir}/etc/settings_gunicorn.py" "${file_name}"
+
+
 #
 # Generating Certificates:
 #
