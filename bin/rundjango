@@ -1,14 +1,35 @@
 #!/bin/sh
 
 : ${project_dir=$(cd "$(dirname "$0")/.."; pwd)}
-: ${envpath=$project_dir/.env}
-[ -f "$envpath" ] && export $(grep -v '^#' "$envpath" | xargs)
+export PYTHONPATH="${project_dir}/src"
+export PYTHONUSERBASE="${project_dir}/.local"
+export DJANGO_SETTINGS_MODULE=project.settings
 
 
-if [ "$1" = "pip" ]; then
-    pip=$PYTHONUSERBASE/bin/pip3
-    $pip install --user -q -r "$project_dir/requirements.txt"
-    $pip install --user -q gunicorn
-else
-    $project_dir/bin/manage.py ${@:-runserver}
-fi
+usage() {
+    cat <<EOT
+Usage:
+$0 -i
+    Install requirements
+$0 -h
+    Show usage
+$0 [argument ...]
+    Run Django management command with arguments. If none given, the default
+    is 'runserver'
+EOT
+}
+
+
+while getopts 'hi' option; do
+    case $option in
+    h)  usage
+        exit 0 ;;
+    i)  /usr/bin/env pip3 install --user -r "$project_dir/requirements.txt"
+        exit 0 ;;
+    *)  usage
+        exit 1 ;;
+    esac
+done
+shift $((OPTIND - 1))
+
+$project_dir/bin/manage.py ${@:-runserver}
