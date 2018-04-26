@@ -21,16 +21,14 @@ safe_name=${server_name//\./_}
 : ${port:=8000}
 : ${user:=www-data}
 
-if command -v brew > /dev/null; then
-    . ${project_dir}/bin/prepare.darwin __define__
-elif [ $(uname) = 'FreeBSD' ]; then
-    . ${project_dir}/bin/prepare.freebsd __define__
-elif command -v apt-get > /dev/null; then
-    . ${project_dir}/bin/prepare.linux __define__
+if   command -v brew            > /dev/null; then osname=darwin
+elif command -v freebsd-version > /dev/null; then osname=freebsd
+elif command -v apt-get         > /dev/null; then osname=linux
 else
     echo 'Unable to determine the operating system'
     exit 1
 fi
+. ${project_dir}/bin/prepare.${osname}
 mkdir -p "${conf_dir}"
 
 

@@ -40,4 +40,4 @@ _stop_nginx() {
 # Prepare
 #
 
-if [ -z "$1" ]; then _prerequisites; fi
+_prerequisites
