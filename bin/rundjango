@@ -5,31 +5,5 @@ export PYTHONPATH="${project_dir}/src"
 export PYTHONUSERBASE="${project_dir}/.local"
 export DJANGO_SETTINGS_MODULE=project.settings
 
-
-usage() {
-    cat <<EOT
-Usage:
-$0 -i
-    Install requirements
-$0 -h
-    Show usage
-$0 [argument ...]
-    Run Django management command with arguments. If none given, the default
-    is 'runserver'
-EOT
-}
-
-
-while getopts 'hi' option; do
-    case $option in
-    h)  usage
-        exit 0 ;;
-    i)  /usr/bin/env pip3 install --user -r "$project_dir/requirements.txt"
-        exit 0 ;;
-    *)  usage
-        exit 1 ;;
-    esac
-done
-shift $((OPTIND - 1))
-
+pip3 install --user -r "$project_dir/requirements.txt"
 $project_dir/bin/manage.py ${@:-runserver}
