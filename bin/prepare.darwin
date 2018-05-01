@@ -16,9 +16,6 @@ startup_file=/dev/null
 #
 _prerequisites() {
     brew update
-    brew upgrade
-    brew cleanup
-
     brew install nginx postgresql python3
     alias certbot=echo
 }

@@ -16,7 +16,7 @@ startup_file="/usr/local/etc/rc.d/${server_name}"
 #
 _prerequisites() {
     freebsd-update fetch install
-    pkg install nginx postgresql10-server py36-pip py36-psycopg2 py27-certbot
+    pkg install nginx postgresql10-server py36-pip py36-psycopg2 py36-gunicorn py27-certbot
     rehash
 }
 
