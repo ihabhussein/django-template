@@ -3,7 +3,7 @@
 : ${project_dir=$(cd "$(dirname "$0")/.."; pwd)}
 export PYTHONPATH="${project_dir}/src"
 export PYTHONUSERBASE="${project_dir}/.local"
-export DJANGO_SETTINGS_MODULE=project.settings
+export DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE-project.settings}
 
 pip3 install --user -r "$project_dir/requirements.txt"
 $project_dir/bin/manage.py ${@:-runserver}
