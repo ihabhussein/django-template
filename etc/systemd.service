@@ -7,7 +7,7 @@ ExecStart="gunicorn3 -c __CONF__/__SAFE___gunicorn project.wsgi:application"
 Environment="PYTHONPATH=__CONF__:__PDIR__/src"
 Environment="PYTHONUSERBASE=__PDIR__/.local"
 Environment="DJANGO_SETTINGS_MODULE=__SAFE___django"
-Restart=on−failure
+Restart=on-failure
 
 [Install]
 WantedBy=multi-user.target
