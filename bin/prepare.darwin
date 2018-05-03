@@ -7,8 +7,8 @@ if [ $? -gt 0 ]; then
 fi
 
 nginx_conf="${project_dir}/.local/nginx.conf"
-startup_template=/dev/null
-startup_file=/dev/null
+startup_template="${project_dir}/etc/launchd.plist"
+startup_file="/Library/LaunchDaemons/${server_name}.plist"
 
 #
 # Prepare the system
@@ -24,11 +24,14 @@ _prerequisites() {
 # Startup
 #
 _startup() {
-    echo
+    brew services start nginx
+    brew services start postgresql
+    launchctl daemon-reload
+    launchctl start "${server_name}"
 }
 
 _stop_nginx() {
-    echo
+    brew services stop nginx
 }
 
 
