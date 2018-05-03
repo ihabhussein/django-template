@@ -6,7 +6,6 @@ if [ $? -gt 0 ]; then
     exit 1
 fi
 
-conf_dir="/usr/local/etc/django"
 nginx_conf="/usr/local/etc/nginx/vhosts/${server_name}"
 startuo_template="${project_dir}/etc/bsd-rc.d"
 startup_file="/usr/local/etc/rc.d/${server_name}"

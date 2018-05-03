@@ -29,6 +29,7 @@ else
     exit 1
 fi
 . ${project_dir}/bin/prepare.${osname}
+conf_dir="${project_dir}/.local/etc"
 mkdir -p "${conf_dir}"
 
 

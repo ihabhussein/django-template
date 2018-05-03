@@ -6,7 +6,6 @@ if [ $? -gt 0 ]; then
     exit 1
 fi
 
-conf_dir="${project_dir}/.local"
 nginx_conf="${project_dir}/.local/nginx.conf"
 startup_template=/dev/null
 startup_file=/dev/null
