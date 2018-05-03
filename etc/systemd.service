@@ -4,7 +4,7 @@ DefaultDependencies=true
 
 [Service]
 ExecStart=gunicorn3 project.wsgi:application
-Environment=GUNICORN_CMD_ARGS=-b 127.0.0.1:__PORT__ -w 4 --reload --capture-output --error-logfile /var/log/__NAME__.err --access-logfile /var/log/__NAME__.log
+Environment=GUNICORN_CMD_ARGS=-b 127.0.0.1:__PORT__ -w 4 --reload
 Environment=PYTHONPATH=__CONF__:__PDIR__/src
 Environment=PYTHONUSERBASE=__PDIR__/.local
 Environment=DJANGO_SETTINGS_MODULE=__SAFE___django
