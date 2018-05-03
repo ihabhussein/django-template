@@ -49,8 +49,6 @@ render() {
 
 file_name="${conf_dir}/${safe_name}_django.py"
 render "${project_dir}/etc/django.py" "${file_name}"
-file_name="${conf_dir}/${safe_name}_gunicorn.py"
-render "${project_dir}/etc/gunicorn.py" "${file_name}"
 
 _stop_nginx
 certbot certonly --standalone -d "${server_name}" "${other_names}"

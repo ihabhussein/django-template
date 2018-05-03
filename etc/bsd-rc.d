@@ -8,10 +8,11 @@
 . /etc/rc.subr
 
 name=__NAME__
-command="gunicorn3 -c __CONF__/__SAFE___gunicorn project.wsgi:application"
+command="gunicorn3 project.wsgi:application"
 export PYTHONPATH="__CONF__:__PDIR__/src"
 export PYTHONUSERBASE="__PDIR__/.local"
 export DJANGO_SETTINGS_MODULE="__SAFE___django"
+export GUNICORN_CMD_ARGS="-b 127.0.0.1:__PORT__ -w 4 --reload --capture-output --error-logfile /var/log/__NAME__.err --access-logfile /var/log/__NAME__.log"
 
 load_rc_config $name
 : ${__NAME___enable:=no}
