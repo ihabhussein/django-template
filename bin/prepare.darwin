@@ -7,6 +7,7 @@ if [ $? -gt 0 ]; then
 fi
 
 nginx_conf="${project_dir}/.local/nginx.conf"
+uwsgi_conf="${project_dir}/.local/uwsgi.ini"
 startup_template="${project_dir}/etc/launchd.plist"
 startup_file="/Library/LaunchDaemons/${server_name}.plist"
 
