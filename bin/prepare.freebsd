@@ -8,8 +8,6 @@ fi
 
 nginx_conf="/usr/local/etc/nginx/vhosts/${server_name}"
 uwsgi_conf="/usr/local/etc/uwsgi/vassals/${server_name}.ini"
-startuo_template="${project_dir}/etc/bsd-rc.d"
-startup_file="/usr/local/etc/rc.d/${server_name}"
 
 #
 # Prepare the system
@@ -25,8 +23,9 @@ _prerequisites() {
 # Startup
 #
 _startup() {
-    for service in postgresql ${server_name} nginx; do
-    	sysrc ${service}_enable=yes
+    sysrc uwsgi_emperor=YES
+    for service in postgresql uwsgi nginx; do
+    	sysrc ${service}_enable=YES
     	service ${service} restart
     done
 }

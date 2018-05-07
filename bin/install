@@ -55,6 +55,4 @@ _stop_nginx
 certbot certonly --standalone -d "${server_name}" "${other_names}"
 render "${project_dir}/etc/nginx.conf" "${nginx_conf}"
 render "${project_dir}/etc/uwsgi.ini" "${uwsgi_conf}"
-render "${startup_template}" "${startup_file}"
-chmod +x "${startup_file}"
 _startup

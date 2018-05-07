@@ -8,8 +8,6 @@ fi
 
 nginx_conf="/etc/nginx/sites-enabled/${server_name}"
 uwsgi_conf="/etc/uwsgi/apps-enabled/${server_name}.ini"
-startuo_template="${project_dir}/etc/systemd.service"
-startup_file="/etc/systemd/system/${server_name}.service"
 
 #
 # Prepare the system
@@ -35,9 +33,9 @@ EOT
 # Startup
 #
 _startup() {
-    systemctl daemon-reload
-    systemctl restart nginx
-    systemctl start "${server_name}"
+    for service in postgresql uwsgi-emperor nginx; do
+    	systemctl restart ${service}
+    done
 }
 
 _stop_nginx() {

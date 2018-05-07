@@ -8,8 +8,6 @@ fi
 
 nginx_conf="${project_dir}/.local/nginx.conf"
 uwsgi_conf="${project_dir}/.local/uwsgi.ini"
-startup_template="${project_dir}/etc/launchd.plist"
-startup_file="/Library/LaunchDaemons/${server_name}.plist"
 
 #
 # Prepare the system
@@ -25,10 +23,8 @@ _prerequisites() {
 # Startup
 #
 _startup() {
-    brew services start nginx
-    brew services start postgresql
-    launchctl daemon-reload
-    launchctl start "${server_name}"
+    brew services restart nginx
+    brew services restart postgresql
 }
 
 _stop_nginx() {
