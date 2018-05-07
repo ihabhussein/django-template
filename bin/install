@@ -11,8 +11,8 @@ if [ $? -gt 0 ]; then
     echo "Invalid \$server_name: ${server_name:-(empty)}"
     exit 2
 fi
-safe_name=${server_name//\./_}
 
+################################################################################
 #
 # Installation defaults
 #
@@ -27,27 +27,23 @@ else
     exit 1
 fi
 . ${project_dir}/bin/prepare.${osname}
-conf_dir="${project_dir}/.local/etc"
-mkdir -p "${conf_dir}"
 
 
 ################################################################################
+#
+# Installation
+#
 
 render() {
     sed \
         -e "s|__NAME__|${server_name}|" \
-        -e "s|__SAFE__|${safe_name}|" \
         -e "s|__NAMES__|${other_names}|" \
         -e "s|__PDIR__|${project_dir}|" \
-        -e "s|__CONF__|${conf_dir}|" \
         -e "s|__USER__|${user}|" \
         -e "s|__GROUP__|${group}|" \
         < $1 > $2
 }
 
-
-file_name="${conf_dir}/${safe_name}_django.py"
-render "${project_dir}/etc/django.py" "${file_name}"
 
 _stop_nginx
 certbot certonly --standalone -d "${server_name}" "${other_names}"

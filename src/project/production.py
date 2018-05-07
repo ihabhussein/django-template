@@ -1,16 +1,15 @@
 # -*- coding: utf-8 -*-
 
-from project.settings import *
-
+from os import environ
 from pgconninfo import pg_conninfo
+from project.settings import *
 
 
 # Security
 
-SECRET_KEY = 'uxM7z/bzeFWp9cqRb8MS8Znkg97PbcJLvXSJ535bFB4uR1sb+OWSX'
-DEBUG = 0
+SECRET_KEY = environ.get('DJANGO_SECRET_KEY')
+DEBUG = False
 ALLOWED_HOSTS = ['*']
-
 # CSRF_COOKIE_HTTPONLY = True
 # CSRF_COOKIE_SECURE = True
 # SESSION_COOKIE_SECURE = True
@@ -25,12 +24,6 @@ DATABASES = {
     'default': pg_conninfo(),
 }
 
-HAYSTACK_CONNECTIONS = {
-    'default': {
-        'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
-    }
-}
-
 
 # Internationalization
 
@@ -40,6 +33,8 @@ LANGUAGES = [
 ]
 LANGUAGE_CODE = 'en'
 
+
+# Mail
 
 EMAIL_HOST = environ.get('EMAIL_HOST')
 EMAIL_PORT = environ.get('EMAIL_PORT')

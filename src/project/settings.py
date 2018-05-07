@@ -1,18 +1,16 @@
-# -*- coding: utf-8 -*-
-
 from os import path
 
-
-# Build paths inside the project like this: path.join(BASE_DIR, ...)
-BASE_DIR = path.dirname(path.dirname(path.abspath(__file__)))
+BASE_DIR = path.dirname(path.dirname(path.dirname(path.abspath(__file__))))
 
 
-# Security
+SECRET_KEY = 'secret_key'
 
-SECRET_KEY = '_random_string_'
-DEBUG = 1
+DEBUG = True
+
 ALLOWED_HOSTS = []
 
+
+# Application definition
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -41,9 +39,7 @@ ROOT_URLCONF = 'project.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [
-            path.join(BASE_DIR, 'templates'),
-        ],
+        'DIRS': [],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -58,6 +54,16 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'project.wsgi.application'
+
+
+# Database
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': path.join(BASE_DIR, '.local', 'db.sqlite3'),
+    }
+}
 
 
 # Password validation
@@ -80,23 +86,17 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Internationalization
 
-LANGUAGE_CODE = 'en_US'
+LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'Africa/Cairo'
+TIME_ZONE = 'UTC'
+
 USE_I18N = True
+
 USE_L10N = True
-DATE_INPUT_FORMATS = ['%Y-%m-%d', '%d/%m/%Y']
+
 USE_TZ = True
+
 
 # Static files (CSS, JavaScript, Images)
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = path.join(BASE_DIR, 'media')
-
 STATIC_URL = '/static/'
-STATIC_ROOT = path.join(BASE_DIR, 'static')
-
-STATICFILES_FINDERS = (
-    'django.contrib.staticfiles.finders.FileSystemFinder',
-    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-)
