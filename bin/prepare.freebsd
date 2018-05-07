@@ -14,7 +14,8 @@ uwsgi_conf="/usr/local/etc/uwsgi/vassals/${server_name}.ini"
 #
 _prerequisites() {
     freebsd-update fetch install
-    pkg install nginx postgresql10-server py36-pip py36-psycopg2 py36-gunicorn py27-certbot
+    pkg install \
+        py36-pip py36-psycopg2 nginx py27-certbot postgresql10-server uwsgi
     rehash
 }
 
