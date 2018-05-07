@@ -35,7 +35,7 @@ EOT
 # Startup
 #
 _startup() {
-    for service in postgresql uwsgi-emperor nginx; do
+    for service in uwsgi-emperor nginx; do
     	systemctl restart ${service}
     done
 }

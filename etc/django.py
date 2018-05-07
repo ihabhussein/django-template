@@ -47,32 +47,3 @@ EMAIL_HOST_USER = environ.get('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = environ.get('EMAIL_HOST_PASSWORD')
 EMAIL_USE_TLS = environ.get('EMAIL_USE_TLS')
 EMAIL_USE_SSL = environ.get('EMAIL_USE_SSL')
-
-# Logging
-
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'syslog': {
-            'format': '%(asctime)s %(levelname)s %(module)s %(process)d %(message)s'
-        },
-    },
-    'handlers': {
-        'syslog': {
-            'class': 'logging.handlers.SysLogHandler',
-            'facility': environ.get('LOG_FACILITY', 'local7'),
-            'formatter': 'syslog',
-        },
-        'console': {
-            'class': 'logging.StreamHandler',
-        },
-    },
-    'loggers': {
-        '': {
-            'level': environ.get('LOG_LEVEL', 'DEBUG' if DEBUG else 'INFO'),
-            'handlers': ['console'],
-            'propagate': True,
-        },
-    },
-}
