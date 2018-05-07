@@ -6,6 +6,8 @@ if [ $? -gt 0 ]; then
     exit 1
 fi
 
+user=_www
+group=_www
 nginx_conf="${project_dir}/.local/nginx.conf"
 uwsgi_conf="${project_dir}/.local/uwsgi.ini"
 
