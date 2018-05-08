@@ -6,8 +6,6 @@ if [ $? -gt 0 ]; then
     exit 1
 fi
 
-user=_www
-group=_www
 nginx_conf="/usr/local/etc/nginx/vhosts/${server_name}"
 uwsgi_conf="/usr/local/etc/uwsgi/vassals/${server_name}.ini"
 

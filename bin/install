@@ -37,16 +37,23 @@ fi
 render() {
     sed \
         -e "s|__NAME__|${server_name}|" \
-        -e "s|__NAMES__|${other_names}|" \
+        -e "s|__NAMX__|${other_names}|" \
         -e "s|__PDIR__|${project_dir}|" \
-        -e "s|__USER__|${user}|" \
-        -e "s|__GROUP__|${group}|" \
+        -e "s|__SKEY__|${secret_key}|" \
         < $1 > $2
 }
 
+secret_key="$(openssl rand -base64 48)"
 
 _stop_nginx
 certbot certonly --standalone -d "${server_name}" "${other_names}"
 render "${project_dir}/etc/nginx.conf" "${nginx_conf}"
 render "${project_dir}/etc/uwsgi.ini" "${uwsgi_conf}"
 _startup
+
+
+#
+# Requirements
+#
+PYTHONUSERBASE=${project_dir}/.local \
+    pip3 install --user -r requirements.txt
