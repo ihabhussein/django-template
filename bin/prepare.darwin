@@ -6,8 +6,8 @@ if [ $? -gt 0 ]; then
     exit 1
 fi
 
-nginx_conf="${project_dir}/.local/nginx.conf"
-uwsgi_conf="${project_dir}/.local/uwsgi.ini"
+nginx_conf="/usr/local/etc/nginx/servers/${server_name}.conf"
+uwsgi_conf="${project_dir}/.local/${server_name}.ini"
 
 
 #
@@ -15,8 +15,7 @@ uwsgi_conf="${project_dir}/.local/uwsgi.ini"
 #
 _prerequisites() {
     brew update
-    brew install nginx postgresql python3
-    alias certbot=echo
+    brew install nginx postgresql python3 certbot
 }
 
 
@@ -25,7 +24,8 @@ _prerequisites() {
 #
 _startup() {
     brew services restart nginx
-    brew services restart postgresql
+    brew services start postgresql
+    brew services start uwsgi
 }
 
 _stop_nginx() {
