@@ -15,12 +15,13 @@ for name in $server_name $@; do
 done
 other_names="$@"
 
+
 ################################################################################
 #
 # Installation defaults
 #
 
-: ${project_dir:=$(cd "$(dirname "$0")/.."; pwd)}
+: ${project_dir:=$(cd "$(dirname -- "$0")/.."; pwd)}
 : ${WEB_CONCURRENCY:=3}
 
 if   command -v brew            > /dev/null; then osname=darwin
@@ -30,17 +31,27 @@ else
     echo 'Unable to determine the operating system'
     exit 1
 fi
-. ${project_dir}/bin/prepare.${osname}
+. $(dirname -- "$0")/prepare.${osname}
 
 
 ################################################################################
 #
-# Installation
+# Functions
 #
 
-# _prerequisites
+_create_cert() {
+    _nginx stop
+    certbot certonly --standalone -d "${server_name}" "${other_names}"
+    _nginx start
+}
 
-cat > "${uwsgi_conf}" <<EOT
+_requirements() {
+    PYTHONUSERBASE=${project_dir}/.local \
+        pip3 install --user -r requirements.txt
+}
+
+_setup_uwsgi() {
+    cat > "${uwsgi_conf}" <<EOT
 [uwsgi]
 plugins = python3,syslog
 wsgi-file = ${project_dir}/src/project/wsgi.py
@@ -54,8 +65,10 @@ env = PYTHONPATH=${project_dir}/src
 env = PYTHONUSERBASE=${project_dir}/.local
 env = DJANGO_SECRET_KEY=$(openssl rand -base64 48)
 EOT
+}
 
-cat > "${nginx_conf}" <<EOT
+_setup_nginx() {
+    cat > "${nginx_conf}" <<EOT
 upstream django.${server_name} {
     server unix:///tmp/uwsgi.vassal.${server_name};
 }
@@ -92,15 +105,17 @@ server {
     }
 }
 EOT
+}
 
-_stop_nginx
-certbot certonly --standalone -d "${server_name}" "${other_names}"
+
+################################################################################
+#
+# Installation
+#
+
+_prerequisites
 _startup
-
-
-#
-# Requirements
-#
-
-PYTHONUSERBASE=${project_dir}/.local \
-    pip3 install --user -r requirements.txt
+_create_cert
+_requirements
+_setup_uwsgi
+_setup_nginx

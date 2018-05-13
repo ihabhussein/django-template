@@ -9,10 +9,6 @@ fi
 nginx_conf="/usr/local/etc/nginx/vhosts/${server_name}"
 uwsgi_conf="/usr/local/etc/uwsgi/vassals/${server_name}.ini"
 
-
-#
-# Prepare the system
-#
 _prerequisites() {
     freebsd-update fetch install
     pkg install \
@@ -20,18 +16,14 @@ _prerequisites() {
     rehash
 }
 
-
-#
-# Startup
-#
 _startup() {
     sysrc uwsgi_emperor=YES
     for service in postgresql uwsgi nginx; do
-    	sysrc ${service}_enable=YES
-    	service ${service} restart
+        sysrc ${service}_enable=YES
+        service ${service} start
     done
 }
 
-_stop_nginx() {
-    service nginx stop
+_nginx() {
+    service nginx $1
 }

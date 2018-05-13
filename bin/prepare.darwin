@@ -9,25 +9,17 @@ fi
 nginx_conf="/usr/local/etc/nginx/servers/${server_name}.conf"
 uwsgi_conf="${project_dir}/.local/${server_name}.ini"
 
-
-#
-# Prepare the system
-#
 _prerequisites() {
     brew update
     brew install nginx postgresql python3 certbot
 }
 
-
-#
-# Startup
-#
 _startup() {
-    brew services restart nginx
-    brew services start postgresql
-    brew services start uwsgi
+    for service in postgresql uwsgi nginx; do
+        brew services start ${service}
+    done
 }
 
-_stop_nginx() {
-    brew services stop nginx
+_nginx() {
+    brew services $1 nginx
 }

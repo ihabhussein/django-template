@@ -9,16 +9,12 @@ fi
 nginx_conf="/etc/nginx/sites-enabled/${server_name}"
 uwsgi_conf="/etc/uwsgi-emperor/vassals/${server_name}.ini"
 
-
-#
-# Prepare the system
-#
 _prerequisites() {
     distro=$(lsb_release -cs)
     curl -sLf https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
     cat > /etc/apt/sources.list.d/pgdg.list <<EOT
-    deb     http://apt.postgresql.org/pub/repos/apt/ ${distro}-pgdg main
-    deb-src http://apt.postgresql.org/pub/repos/apt/ ${distro}-pgdg main
+deb     http://apt.postgresql.org/pub/repos/apt/ ${distro}-pgdg main
+deb-src http://apt.postgresql.org/pub/repos/apt/ ${distro}-pgdg main
 EOT
 
     apt-get -y install software-properties-common
@@ -31,16 +27,12 @@ EOT
     apt autoremove
 }
 
-
-#
-# Startup
-#
 _startup() {
-    for service in uwsgi-emperor nginx; do
-    	systemctl restart ${service}
+    for service in postgresql uwsgi-emperor nginx; do
+        systemctl start ${service}
     done
 }
 
-_stop_nginx() {
-    systemctl stop nginx
+_nginx() {
+    systemctl $1 nginx
 }
