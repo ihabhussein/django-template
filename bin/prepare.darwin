@@ -9,6 +9,7 @@ fi
 nginx_conf="${project_dir}/.local/nginx.conf"
 uwsgi_conf="${project_dir}/.local/uwsgi.ini"
 
+
 #
 # Prepare the system
 #
@@ -30,10 +31,3 @@ _startup() {
 _stop_nginx() {
     brew services stop nginx
 }
-
-
-#
-# Prepare
-#
-
-_prerequisites

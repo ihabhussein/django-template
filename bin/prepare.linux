@@ -9,6 +9,7 @@ fi
 nginx_conf="/etc/nginx/sites-enabled/${server_name}"
 uwsgi_conf="/etc/uwsgi-emperor/vassals/${server_name}.ini"
 
+
 #
 # Prepare the system
 #
@@ -43,10 +44,3 @@ _startup() {
 _stop_nginx() {
     systemctl stop nginx
 }
-
-
-#
-# Prepare
-#
-
-_prerequisites

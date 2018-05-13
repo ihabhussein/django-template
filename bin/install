@@ -38,6 +38,8 @@ fi
 # Installation
 #
 
+# _prerequisites
+
 cat > "${uwsgi_conf}" <<EOT
 [uwsgi]
 plugins = python3,syslog
@@ -99,5 +101,6 @@ _startup
 #
 # Requirements
 #
+
 PYTHONUSERBASE=${project_dir}/.local \
     pip3 install --user -r requirements.txt
