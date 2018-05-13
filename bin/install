@@ -18,6 +18,7 @@ fi
 #
 
 : ${project_dir:=$(cd "$(dirname "$0")/.."; pwd)}
+: ${WEB_CONCURRENCY:=3}
 
 if   command -v brew            > /dev/null; then osname=darwin
 elif command -v freebsd-version > /dev/null; then osname=freebsd
@@ -34,21 +35,61 @@ fi
 # Installation
 #
 
-render() {
-    sed \
-        -e "s|__NAME__|${server_name}|" \
-        -e "s|__NAMX__|${other_names}|" \
-        -e "s|__PDIR__|${project_dir}|" \
-        -e "s|__SKEY__|${secret_key}|" \
-        < $1 > $2
+cat > "${uwsgi_conf}" <<EOT
+[uwsgi]
+plugins = python3,syslog
+wsgi-file = ${project_dir}/src/project/wsgi.py
+socket = /tmp/uwsgi.vassal.${server_name}
+req-logger = syslog:${server_name},local6
+logger = syslog:${server_name},local7
+processes = ${WEB_CONCURRENCY}
+log-format = %(addr) - %(user) [%(ltime)] "%(method) %(uri) %(proto)" %(status) %(size) "%(referer)" "%(uagent)"
+
+env = PYTHONPATH=${project_dir}/src
+env = PYTHONUSERBASE=${project_dir}/.local
+env = DJANGO_SECRET_KEY=$(openssl rand -base64 48)
+EOT
+
+cat > "${nginx_conf}" <<EOT
+upstream django.${server_name} {
+    server unix:///tmp/uwsgi.vassal.${server_name};
 }
 
-secret_key="$(openssl rand -base64 48)"
+server {
+    listen 80;
+    server_name ${server_name} ${other_names};
+    server_tokens off;
+    return 301 https://${server_name}$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    server_name ${server_name} ${other_names};
+    server_tokens off;
+    add_header Strict-Transport-Security "max-age=31536000";
+
+    ssl_certificate           /etc/letsencrypt/live/${server_name}/fullchain.pem;
+    ssl_certificate_key       /etc/letsencrypt/live/${server_name}/privkey.pem;
+    ssl_session_timeout       5m;
+    ssl_protocols             TLSv1.2;
+    ssl_ciphers               HIGH:!ADH:!MD5;
+    ssl_prefer_server_ciphers on;
+    keepalive_timeout         70;
+
+    client_max_body_size 20m;
+
+    root ${project_dir}/htdocs;
+    location /static/ {}
+    location /media/ {}
+    location / {
+        uwsgi_pass       django.${server_name};
+        include          uwsgi_params;
+    }
+}
+EOT
 
 _stop_nginx
 certbot certonly --standalone -d "${server_name}" "${other_names}"
-render "${project_dir}/etc/nginx.conf" "${nginx_conf}"
-render "${project_dir}/etc/uwsgi.ini" "${uwsgi_conf}"
 _startup
 
 
