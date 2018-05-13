@@ -7,4 +7,4 @@ export PYTHONUSERBASE="${project_dir}/.local"
 export DJANGO_SECRET_KEY="$(openssl rand -base64 48)"
 
 pip3 install --user -r "$project_dir/requirements.txt"
-$project_dir/bin/manage.py ${@:-runserver}
+$project_dir/src/manage.py ${@:-runserver}
