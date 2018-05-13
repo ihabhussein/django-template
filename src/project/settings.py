@@ -1,13 +1,21 @@
-from os import path
-
-BASE_DIR = path.dirname(path.dirname(path.dirname(path.abspath(__file__))))
+from os import environ, path
 
 
-SECRET_KEY = 'secret_key'
+BASE_DIR = path.dirname(path.dirname(path.abspath(__file__)))
+DEPLOY_DIR = path.dirname(BASE_DIR)
+HTDOCS_DIR = path.join(DEPLOY_DIR, 'htdocs')
 
-DEBUG = True
 
-ALLOWED_HOSTS = []
+DEBUG = 'DEBUG' in environ
+
+SECRET_KEY = 'secret_key' if DEBUG else environ.get('DJANGO_SECRET_KEY')
+ALLOWED_HOSTS = ['*']
+CSRF_COOKIE_HTTPONLY = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
+SESSION_COOKIE_SECURE = not DEBUG
+SECURE_SSL_REDIRECT = not DEBUG
+SECURE_BROWSER_XSS_FILTER = not DEBUG
+SECURE_CONTENT_TYPE_NOSNIFF = not DEBUG
 
 
 # Application definition
@@ -39,7 +47,9 @@ ROOT_URLCONF = 'project.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            path.join(BASE_DIR, 'templates'),
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -61,7 +71,7 @@ WSGI_APPLICATION = 'project.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': path.join(BASE_DIR, '.local', 'db.sqlite3'),
+        'NAME': path.join(DEPLOY_DIR, '.local', 'db.sqlite3'),
     }
 }
 
@@ -100,6 +110,6 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 
 STATIC_URL = '/static/'
-STATIC_ROOT = path.join(BASE_DIR, 'htdocs', 'static')
+STATIC_ROOT = environ.get('STATIC_ROOT', path.join(HTDOCS_DIR, 'static'))
 MEDIA_URL = '/media/'
-MEDIA_ROOT = path.join(BASE_DIR, 'htdocs', 'media')
+MEDIA_ROOT = environ.get('MEDIA_ROOT', path.join(HTDOCS_DIR, 'media'))
