@@ -5,12 +5,15 @@
 # Server name
 #
 
-: ${server_name:=$1}
-echo "${server_name}" | grep -E '^[a-z0-9.-]+$' >/dev/null
-if [ $? -gt 0 ]; then
-    echo "Invalid \$server_name: ${server_name:-(empty)}"
-    exit 2
-fi
+server_name=$(shift)
+for name in $server_name $@; do
+    echo "$name" | grep -E '^[a-z0-9.-]+$' >/dev/null
+    if [ $? -gt 0 ]; then
+        echo "Invalid server name: $name"
+        exit 2
+    fi
+done
+other_names="$@"
 
 ################################################################################
 #
