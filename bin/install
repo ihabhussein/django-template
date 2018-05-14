@@ -45,9 +45,11 @@ _create_cert() {
     _nginx start
 }
 
-_requirements() {
+_setup_project() {
     PYTHONUSERBASE=${project_dir}/.local \
         pip3 install --user -r requirements.txt
+    PYTHONUSERBASE=${project_dir}/.local PYTHONPATH=${project_dir}/src \
+        ${project_dir}/src/manage.py migrate
 }
 
 _setup_uwsgi() {
@@ -116,6 +118,7 @@ EOT
 _prerequisites
 _startup
 _create_cert
-_requirements
+_setup_project
 _setup_uwsgi
 _setup_nginx
+_nginx restart
