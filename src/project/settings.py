@@ -8,7 +8,7 @@ HTDOCS_DIR = path.join(DEPLOY_DIR, 'htdocs')
 
 DEBUG = 'DEBUG' in environ
 
-SECRET_KEY = 'secret_key' if DEBUG else environ.get('DJANGO_SECRET_KEY')
+SECRET_KEY = 'secret_key' if DEBUG else environ.get('SECRET_KEY')
 ALLOWED_HOSTS = ['*']
 CSRF_COOKIE_HTTPONLY = not DEBUG
 CSRF_COOKIE_SECURE = not DEBUG

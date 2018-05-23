@@ -65,7 +65,7 @@ log-format = %(addr) - %(user) [%(ltime)] "%(method) %(uri) %(proto)" %(status) 
 
 env = PYTHONPATH=${project_dir}/src
 env = PYTHONUSERBASE=${project_dir}/.local
-env = DJANGO_SECRET_KEY=$(openssl rand -base64 48)
+env = SECRET_KEY=$(openssl rand -base64 48)
 EOT
 }
 
