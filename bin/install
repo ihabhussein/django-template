@@ -111,6 +111,14 @@ server {
 EOT
 }
 
+_create_env_file() {
+    cat > "${project_dir}/env.sh" <<EOT
+#!/bin/sh
+
+export $(grep '^env =' "${nginx_conf}" | sed -e 's/env = //' | xargs)
+EOT
+}
+
 
 ################################################################################
 #
@@ -124,3 +132,4 @@ _setup_project
 _setup_uwsgi
 _setup_nginx
 _nginx restart
+_create_env_file
