@@ -55,18 +55,16 @@ _setup_project() {
 _setup_uwsgi() {
     cat > "${uwsgi_conf}" <<EOT
 [uwsgi]
-set-placeholder = project_dir=${project_dir}
-
 plugins = python3,syslog
-wsgi-file = %(project_dir)/src/project/wsgi.py
+wsgi-file = ${project_dir}/src/project/wsgi.py
 socket = /tmp/uwsgi.vassal.%n
 req-logger = syslog:%n,local6
 logger = syslog:%n,local7
 processes = ${WEB_CONCURRENCY}
 log-format = %(addr) - %(user) [%(ltime)] "%(method) %(uri) %(proto)" %(status) %(size) "%(referer)" "%(uagent)"
 
-env = PYTHONPATH=%(project_dir)/src
-env = PYTHONUSERBASE=%(project_dir)/.local
+env = PYTHONPATH=${project_dir}/src
+env = PYTHONUSERBASE=${project_dir}/.local
 env = SECRET_KEY=$(openssl rand -base64 48)
 EOT
 }
