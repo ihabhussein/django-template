@@ -10,6 +10,7 @@ DEBUG = 'DEBUG' in environ
 
 SECRET_KEY = 'secret_key' if DEBUG else environ.get('SECRET_KEY')
 ALLOWED_HOSTS = ['*']
+ADMINS = [(x, x) for x in environ.get('ADMINS', '').split(',') if x]
 CSRF_COOKIE_HTTPONLY = not DEBUG
 CSRF_COOKIE_SECURE = not DEBUG
 SESSION_COOKIE_SECURE = not DEBUG
