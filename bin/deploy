@@ -1,0 +1,129 @@
+#!/bin/sh
+
+version=0.1
+
+usage() {
+    cat <<EOT
+Usage:
+
+    $0 [-b branch] [-d dir] [-s startup] user@host:path/reponame.git
+
+    $0 -V
+
+Options:
+
+    -b branch
+        branch to deploy. Default: master.
+
+    -d dir
+        target deployment directory. Default: /var/www/reponame.
+
+    -s startup
+        startup method. Valid values are:
+        o systemd: assumes /etc/systemd/system/reponame.service
+        o uwsgi:   assumes /etc/uwsgi-emperor/vassals/reponame.ini
+
+    -V
+        display script version and exit.
+
+EOT
+    exit 1
+}
+
+while getopts ':b:d:s:V' option; do
+    case $option in
+    b) DEPLOY_BRANCH=$OPTARG ;;
+    d) PDIR=$OPTARG ;;
+    s) STARTUP=$OPTARG ;;
+    V) echo $0 $version; exit ;;
+    *) usage ;;
+    esac
+done
+shift $((OPTIND - 1))
+if [ $# -ne 1 ]; then usage; fi
+
+HOST=${1%:*}
+REPO=${1#*:}
+NAME=$(basename ${REPO%.git})
+: ${DEPLOY_BRANCH=master}
+: ${PDIR=/var/www/${REPO%.git}}
+case $STARTUP in
+systemd) SYSTEMD_FILE=/etc/systemd/system/$NAME.service ;;
+uwsgi)   UWSGI_FILE=/etc/uwsgi-emperor/vassals/$NAME.ini ;;
+*)       ENV_FILE=$STARTUP
+esac
+
+################################################################################
+
+remote() {
+    ssh $HOST $@
+}
+
+# Prepare remote host
+
+ssh $HOST mkdir -p $REPO
+remote git init --bare $REPO
+
+remote "cat > $REPO/hooks/post-receive" <<EOT
+#!/bin/sh
+
+set -e
+
+# Read STDIN (<old-value> SP <new-value> SP <ref-name> LF)
+echo "Deploy: $REPO => $PDIR"
+while read old_value new_value ref_name; do
+    echo "Deploy: received \$ref_name (\$new_value)"
+    if [ \${ref_name##*/} = $DEPLOY_BRANCH ]; then break; fi
+done
+
+# Only deploy if required branch was pushed
+if [ \${ref_name##*/} != $DEPLOY_BRANCH ]; then
+    echo "Deploy: not deploying."
+    exit
+fi
+
+# Copy files to deploy directory
+mkdir -p $PDIR
+git archive $DEPLOY_BRANCH --format=tar | (cd $PDIR; tar xvf -)
+echo "Deploy: $DEPLOY_BRANCH (\$new_value) copied to $PDIR"
+
+# Perform deployment Tasks
+cd $PDIR
+export LC_ALL=C
+EOT
+
+
+if [ -n "$SYSTEMD_FILE" ]; then
+    remote "cat >> $REPO/hooks/post-receive" <<EOT
+export \$(sed -E '/^Environment=/!d; s/Environment=//' < $SYSTEMD_FILE | xargs)
+EOT
+elif [ -n "$UWSGI_FILE" ]; then
+    remote "cat >> $REPO/hooks/post-receive" <<EOT
+export \$(sed -E '/^env = /!d; s/env = //' < $UWSGI_FILE | xargs)
+EOT
+elif [ -n "$ENV_FILE" ]; then
+    remote "cat >> $REPO/hooks/post-receive" <<EOT
+. $ENV_FILE
+EOT
+fi
+
+remote "cat >> $REPO/hooks/post-receive" <<EOT
+pip3 install --user -r requirements.txt
+./src/manage.py migrate
+./src/manage.py collectstatic
+EOT
+
+if [ -n "$SYSTEMD_FILE" ]; then
+    remote "cat >> $REPO/hooks/post-receive" <<EOT
+systemctl restart \$(basename ${SYSTEMD_FILE%.*})
+EOT
+elif [ -n "$UWSGI_FILE" ]; then
+    remote "cat >> $REPO/hooks/post-receive" <<EOT
+touch $UWSGI_FILE
+EOT
+fi
+
+remote chmod +x $REPO/hooks/post-receive
+
+# Add remote to local repo
+git remote add deploy $HOST:$REPO
