@@ -1,9 +1,0 @@
-#!/bin/sh
-
-: ${project_dir=$(cd "$(dirname "$0")/.."; pwd)}
-
-export PYTHONPATH="${project_dir}/src"
-export PYTHONUSERBASE="${project_dir}/.local"
-
-pip3 install --user -r "$project_dir/requirements.txt"
-$project_dir/src/manage.py ${@:-runserver}
