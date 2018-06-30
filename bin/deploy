@@ -95,11 +95,11 @@ EOT
 
 if [ -n "$SYSTEMD_FILE" ]; then
     remote "cat >> $REPO/hooks/post-receive" <<EOT
-export \$(sed -E '/^Environment=/!d; s/Environment=//' < $SYSTEMD_FILE | xargs)
+export \$(sed -nE '/^Environment=/s///p' < $SYSTEMD_FILE | xargs)
 EOT
 elif [ -n "$UWSGI_FILE" ]; then
     remote "cat >> $REPO/hooks/post-receive" <<EOT
-export \$(sed -E '/^env = /!d; s/env = //' < $UWSGI_FILE | xargs)
+export \$(sed -nE '/^env = /s///p' < $UWSGI_FILE | xargs)
 EOT
 elif [ -n "$ENV_FILE" ]; then
     remote "cat >> $REPO/hooks/post-receive" <<EOT
