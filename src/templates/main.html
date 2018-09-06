@@ -1,0 +1,31 @@
+{% load i18n %}
+{% get_available_languages as LANGUAGES %}
+{% get_current_language as LANGUAGE_CODE %}
+{% get_current_language_bidi as LANGUAGE_BIDI %}
+<!DOCTYPE html>
+<html lang="{{LANGUAGE_CODE}}" dir="{% if LANGUAGE_BIDI %}rtl{% else %}ltr{% endif %}">
+<head>
+    <meta charset="utf-8">
+    <title></title>
+</head>
+<body>
+{% if LANGUAGES|length > 1 %}
+<select id="django_language">
+    {% for l in LANGUAGES %}
+    <option value="{{ l.0 }}"{% if l.0 == LANGUAGE_CODE %} selected{% endif %}>{{ l.0|language_name_local }}</option>
+    {% endfor %}
+</select>
+{% endif %}
+
+
+
+
+
+<script>
+    document.querySelector('#django_language').onchange = e => {
+        document.cookie = 'django_language=' + e.target.value + '; path=/';
+        location.reload();
+    };
+</script>
+</body>
+</html>
